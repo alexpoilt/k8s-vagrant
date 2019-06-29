@@ -51,6 +51,7 @@ apt-get update \
 # add completion commands
 echo 'source <(kubectl completion bash)' >>~/.bashrc
 kubectl completion bash >/etc/bash_completion.d/kubectl
+source /usr/share/bash-completion/bash_completion
 
 # Fix the ip route in case we are using multiple network interfaces
 # This command covers the default network for VIPs (10.96.0.0/12) as
