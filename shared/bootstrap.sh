@@ -51,13 +51,22 @@ apt-get update \
 # add completion commands
 echo 'source <(kubectl completion bash)' >>~/.bashrc
 kubectl completion bash >/etc/bash_completion.d/kubectl
-source /usr/share/bash-completion/bash_completion
+echo 'source /usr/share/bash-completion/bash_completion' >>~/.bashrc
 
 # Fix the ip route in case we are using multiple network interfaces
 # This command covers the default network for VIPs (10.96.0.0/12) as
 # per the kubernetes documentation: https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/
 # More on https://github.com/weaveworks/weave/issues/3599
 ip route add 10.96.0.0/12 dev enp0s8 src $CURRENT_NODE_PRIVATE_IP
+
+# Kubelet extra args:
+# - https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/
+# - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/kubelet-integration/
+cat >/etc/default/kubelet <<EOF
+KUBELET_EXTRA_ARGS=--node-ip=$CURRENT_NODE_PRIVATE_IP
+EOF
+systemctl daemon-reload \
+  && systemctl restart kubelet
 
 # start the k8s cluster on master node
 if [[ $CURRENT_NODE_ROLE == 'master' ]]; then
